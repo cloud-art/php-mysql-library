@@ -2,7 +2,7 @@
     session_start();
     require_once("../database.php");
 
-    $table_name='Genre';
+    $table_name='genre';
 ?>
 
 <!DOCTYPE html>
@@ -68,11 +68,13 @@
 
             <div class="col-9">
                 <?php 
+                
                 if ($_SESSION['user']['admin'] == 1){
                     $library_db->query_add_row($table_name);
                 ?><?php
                     }
-            
+                
+
                 $library_db->print_table($table_name);
                 ?>
 

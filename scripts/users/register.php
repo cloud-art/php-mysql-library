@@ -1,6 +1,5 @@
 <?php
         require("../../database.php");
-        $link = db_connect();
         if (isset($_POST["username"]) && isset($_POST["password"])){
             $login = $_POST['login'];
             $email = $_POST['email'];

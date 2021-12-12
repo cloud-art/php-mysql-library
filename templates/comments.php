@@ -4,7 +4,7 @@
     require_once("../database.php");
 
     $book_id=$_GET['id'];
-    $book = $library_db->get_row_by_id('Books', $book_id);
+    $book = $library_db->get_row_by_id('books', $book_id);
 
     $comments = $library_db->get_comments_by_book_id($book_id);
 ?>

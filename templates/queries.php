@@ -1,8 +1,8 @@
 <?php
     require_once("../database.php");
 
-    $authors = $library_db->get_table_fetch_all("Authors");
-    $genres = $library_db->get_table_fetch_all("Genre");
+    $authors = $library_db->get_table_fetch_all("authors");
+    $genres = $library_db->get_table_fetch_all("genre");
 ?>
 
 <!DOCTYPE html>
@@ -112,6 +112,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header" id="headingTwo">
                     <h5 class="mb-0">
@@ -133,16 +134,52 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header" id="headingThree">
                     <h5 class="mb-0">
                         <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Запрос 3
+                        Запрос 5.4
                         </button>
                     </h5>
                     </div>
                     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#queries">
-                        <div class="card-body"></div>
+                        <div class="card-body">
+                            <a href="./queries/lab5_4.php" class="btn btn-info">Посмотреть</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Запрос 5.5
+                        </button>
+                    </h5>
+                    </div>
+                    <div id="collapseFour" class="collapse" aria-labelledby="headingThree" data-parent="#queries">
+                        <div class="card-body">
+                            <form method="POST" action="./queries/lab5_5.php">
+                                <input name="keyword">
+                                <input type="submit" value="find" type="button" class="btn btn-info"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        <div class="col-9">Запрос 5.6</div>
+                        </button>
+                    </h5>
+                    </div>
+                    <div id="collapseFive" class="collapse" aria-labelledby="headingThree" data-parent="#queries">
+                        <div class="card-body">
+                        <a href="./queries/lab5_6.php" class="btn btn-info">Посмотреть</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -152,9 +189,6 @@
 
         </div>
     </div>
-
-
-
 
 </body>
 </html>

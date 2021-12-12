@@ -2,7 +2,7 @@
     session_start();
     require_once("../database.php");
 
-    $table_name = "Books"
+    $table_name = "books"
 ?>
 
 <!DOCTYPE html>

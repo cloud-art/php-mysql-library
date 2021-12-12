@@ -3,7 +3,7 @@
 
     $book_id = $_GET['book_id'];
     $comment_id = $_GET['comment_id'];
-    $table_name = "Comments";
+    $table_name = "comments";
 
     $res = $library_db->query_delete_row($table_name, $comment_id);
     if($res){

@@ -9,6 +9,17 @@
 //     return $link;
 // }
 
+require "rb.php";
+
+R::setup('mysql:host=localhost; dbname=LIBRARY', 'kirill', '0609');
+
+if (!R::testConnection()){
+    exit ('Нет соединения с базой данных');
+
+}
+
+
+
 class Database{
     public string $db_server = "localhost";
     public string $db_user = "kirill";
@@ -50,8 +61,8 @@ class Database{
     }
 
     public function get_books_fetch_all(){
-        $query =    "SELECT Books.id, book_name, specs, writing_date, Authors.full_name as book_author, Genre.genre_name as book_genre 
-                    FROM `Books` INNER JOIN Authors on Books.author=Authors.id INNER JOIN Genre on Books.genre=Genre.id;";
+        $query =    "SELECT books.id, book_name, specs, writing_date, authors.full_name as book_author, genre.genre_name as book_genre 
+                    FROM `books` INNER JOIN authors on books.author=authors.id INNER JOIN genre on books.genre=genre.id;";
         $table = mysqli_query($this->link,$query);
         $table = mysqli_fetch_all($table);
         return $table;
@@ -59,15 +70,15 @@ class Database{
     }
 
     public function get_books_fields(){
-        $query =    "SELECT Books.id, book_name, specs, writing_date, Authors.full_name as book_author, Genre.genre_name as book_genre 
-                    FROM `Books` INNER JOIN Authors on Books.author=Authors.id INNER JOIN Genre on Books.genre=Genre.id;";
+        $query =    "SELECT books.id, book_name, specs, writing_date, authors.full_name as book_author, genre.genre_name as book_genre 
+                    FROM `books` INNER JOIN authors on books.author=authors.id INNER JOIN genre on books.genre=genre.id;";
         $table = mysqli_query($this->link,$query);
         $table = mysqli_fetch_fields($table);
         return $table;
     }
 
     public function get_comments_by_book_id($book_id){
-        $query = "SELECT Comments.id, login, book_id, comment FROM Comments WHERE book_id='$book_id'";
+        $query = "SELECT comments.id, login, book_id, comment FROM comments WHERE book_id='$book_id'";
         $comments = mysqli_query($this->link, $query);
         $comments = mysqli_fetch_all($comments);
         return $comments;
@@ -82,74 +93,67 @@ class Database{
 
     public function query_add_row($table_name){
         if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-            if ($table_name == 'Authors'){
-                $id = $_POST['id'];
-                $full_name = $_POST['full_name'];
-                $birthday = $_POST['birthday'];
-                $death_day = $_POST['death_day'];
+            $table = R::dispense("$table_name");
+            
+            if ($table_name == 'authors'){
+                $table->full_name = $_POST['full_name'];
+                $table->birthday = $_POST['birthday'];
+                $table->death_day = $_POST['death_day'];
 
-                $query="INSERT INTO `$table_name` (`id`, `full_name`, `birthday`, `death_day`) VALUES ('$id', '$full_name', '$birthday', '$death_day');";
-            }else if ($table_name == 'Books'){
-                $id = $_POST['id'];
-                $book_name = $_POST['book_name']; 
-                $specs = $_POST['specs'];
-                $writing_date = $_POST['writing_date'];
-                $author = $_POST['author']; 
-                $genre = $_POST['genre']; 
+                
+            }else if ($table_name == 'books'){
+                $table->book_name = $_POST['book_name']; 
+                $table->specs = $_POST['specs'];
+                $table->writing_date = $_POST['writing_date'];
+                $table->author = $_POST['author']; 
+                $table->genre = $_POST['genre']; 
 
-                $query="INSERT INTO `$table_name` (`id`, `book_name`, `specs`,`writing_date`,`author`,`genre`) VALUES ('$id', '$book_name','$specs','$writing_date','$author','$genre');";    
-            }else if ($table_name == 'Genre'){
-                $id = $_POST['id'];
-                $genre_name = $_POST['genre_name'];
+                    
+            }else if ($table_name == 'genre'){
+                $table->genre_name = $_POST['genre_name'];
 
-                $query="INSERT INTO `$table_name` (`id`, `genre_name`) VALUES ('$id', '$genre_name');";
+
             }
-            $res = mysqli_query($this->link, $query);
+            $res = R::store($table);
             if($res){            
                 header("Location: ".$_SERVER['REQUEST_URI']);
-            }else die("Error: ".mysqli_error($this->link));
+            }else{
+                echo "Error";   
+            }
         }
     }
 
     public function query_delete_row($table_name, $id){
-        $query="DELETE FROM $table_name WHERE id='$id';";
-        $query = mysqli_query($this->link, $query);
-        return $query;
+        $table = R::load("$table_name", $id);
+        $res = R::trash($table);
+        return $res;
     }
 
     public function query_update_row($table_name, $id){
-        $query = "";
-        if ($table_name == 'Authors'){
-            $id = $_POST['id'];
-            $full_name = $_POST['full_name'];
-            $birthday = $_POST['birthday'];
-            $death_day = $_POST['death_day'];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+            $table = R::load("$table_name", $id);
+            if ($table_name == 'authors'){
 
-            $query="UPDATE `$table_name` SET `id`='$id' ,`full_name` = '$full_name',`birthday`='$birthday',`death_day`='$death_day' WHERE `$table_name`.`id` = '$id'";
-        }else if ($table_name == 'Books'){
-            $id = $_POST['id'];
-            $book_name = $_POST['book_name']; 
-            $specs = $_POST['specs'];
-            $writing_date = $_POST['writing_date'];
-            $author = $_POST['author']; 
-            $genre = $_POST['genre']; 
-            // echo $id;
-            // echo $book_name;
-            // echo $specs;
-            // echo $writing_date;
-            // echo $author;
-            // echo $genre;
+                $table->full_name = $_POST['full_name'];
+                $table->birthday = $_POST['birthday'];
+                $table->death_day = $_POST['death_day'];
 
-            $query = "UPDATE `$table_name` SET `id`='$id' ,`book_name` = '$book_name',`specs`='$specs',`writing_date`='$writing_date',`author`='$author',`genre`='$genre' WHERE `$table_name`.`id` = '$id'";
-        }else if ($table_name == 'Genre'){
-            $id = $_POST['id'];
-            $genre_name = $_POST['genre_name'];
+            }else if ($table_name == 'books'){
 
-            $query="UPDATE `$table_name` SET `id`='$id' ,`genre_name` = '$genre_name' WHERE `$table_name`.`id` = '$id'";
+                $table->book_name = $_POST['book_name']; 
+                $table->specs = $_POST['specs'];
+                $table->writing_date = $_POST['writing_date'];
+                $table->author = $_POST['author']; 
+                $table->genre = $_POST['genre']; 
+            }else if ($table_name == 'genre'){
+
+                $table->genre_name = $_POST['genre_name'];
+            }
         }
 
             
-        return $query;
+        $res = R::store($table);
+        return $res;
     }
 
     public function query_add_newuser($login, $email, $password){
@@ -159,8 +163,17 @@ class Database{
     }
 
     public function query_add_comment($login, $book_id, $comment){
-        $query="INSERT INTO `Comments` (`login`, `book_id`, `comment`) VALUES ('$login', '$book_id','$comment');";
+        $id = $this->query_select_last_id("comments");
+        $id = $id[0][0]+1;
+        $query="INSERT INTO `comments` (`id`, `login`, `book_id`, `comment`) VALUES ('$id', '$login', '$book_id','$comment');";
         $query = mysqli_query($this->link, $query);
+        return $query;
+    }
+
+    public function query_select_last_id($table_name){
+        $query="SELECT id FROM `$table_name` ORDER BY id DESC LIMIT 0,1;";
+        $query = mysqli_query($this->link, $query);
+        $query = mysqli_fetch_all($query);
         return $query;
     }
 
@@ -171,7 +184,7 @@ class Database{
     }
 
     public function print_table($table_name){
-        if ($table_name == "Books"){
+        if ($table_name == "books"){
             $table = $this->get_books_fetch_all();
             $fields = $this->get_books_fields();
         }else{
@@ -202,7 +215,7 @@ class Database{
                         <?php
                         }
                         
-                        if ($table_name == "Books"){ ?>
+                        if ($table_name == "books"){ ?>
                             <td> <?php $this->print_comments_link($row[0]) ?> </td>
                         <?php
                         }
@@ -229,7 +242,7 @@ class Database{
     }
 
     public function print_add_form($table_name){
-        $table = $this->get_table_fetch_all($table_name);
+        $id = $this->query_select_last_id($table_name);
         $fields = $this->get_table_fields($table_name);
         ?>
         <!-- Button trigger modal update -->
@@ -254,18 +267,18 @@ class Database{
                                 if ($field->name == "id"){
                             ?>
                                 <label> <?= $field->name?></label>
-                                <input name="<?=$field->name?>" value="<?=count($table)+1 ?>"> <br>
+                                <input name="<?=$field->name?>" value="<?=$id[0][0]+1 ?>" readonly> <br>
                                 <?php
                                 }else if($field->name == "specs"){
                                     ?>
                                     <label for="#"><?=$field->name ?></label>
                                     <textarea class="form-control" name="<?=$field->name ?>" rows="5" id="<?=$field->name ?>"></textarea> <br>
                                     <?php
-                                }else if($table_name == "Books" && ($field->name == "author") or ($field->name == "genre")){
+                                }else if($table_name == "books" && ($field->name == "author") or ($field->name == "genre")){
                                     if ($field->name == "author"){
-                                        $rows = $this->get_table_fetch_all("Authors");
+                                        $rows = $this->get_table_fetch_all("authors");
                                     }else if ($field->name == "genre"){
-                                        $rows = $this->get_table_fetch_all("Genre");
+                                        $rows = $this->get_table_fetch_all("genre");
                                     }
 
                                     ?>
@@ -326,11 +339,11 @@ class Database{
                     <label for="#"><?=$field->name ?></label>
                     <textarea class="form-control" name="<?=$field->name ?>" rows="5"><?=$row[$field->name] ?></textarea> <br>
                     <?php
-                }else if($table_name == "Books" && ($field->name == "author") or ($field->name == "genre")){
+                }else if($table_name == "books" && ($field->name == "author") or ($field->name == "genre")){
                     if ($field->name == "author"){
-                        $tmprows = $this->get_table_fetch_all("Authors");
+                        $tmprows = $this->get_table_fetch_all("authors");
                     }else if ($field->name == "genre"){
-                        $tmprows = $this->get_table_fetch_all("Genre");
+                        $tmprows = $this->get_table_fetch_all("genre");
                     }
                     ?>
                     <label for="#"><?=$field->name?></label>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('../../database.php');
-$link = db_connect();
+
 
 $remember = $_POST['remember'];
 $login  = $_POST['login'];
